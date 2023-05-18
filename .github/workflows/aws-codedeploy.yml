@@ -1,4 +1,4 @@
-name: AWS CodeDeploy Deployment
+name: CI/CD for AWS Deployment
 
 on:
   push:
@@ -6,40 +6,39 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build application
-        run: npm run build
+      - name: Run tests
+        run: npm test
 
-      - name: Configure AWS credentials
-        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
 
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Create CodeDeploy application
-        run: aws deploy create-application --application-name my-app-2 --compute-platform Server
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
 
-      - name: Create CodeDeploy deployment group
-        run: aws deploy create-deployment-group --application-name my-app-2 --deployment-group-name deploy-gr --deployment-config-name CodeDeployDefault.OneAtATime --ec2-tag-filters Key=Name,Value=my-instance,Type=KEY_AND_VALUE
+      - name: Create deployment
+        run: aws deploy create-deployment --application-name my-app-2 --deployment-group-name deploy-gr --github-location repository=practice-app-node,commitId=${{ github.sha }}
 
-      - name: Create CodeDeploy deployment
-        run: aws deploy create-deployment --application-name my-app-2 --deployment-group-name deploy-gr --s3-location bucket=web-my-bucket,bundleType=zip,key=my-app.zip
