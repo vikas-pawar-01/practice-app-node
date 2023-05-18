@@ -36,10 +36,10 @@ jobs:
           sudo ./aws/install
 
       - name: Create CodeDeploy application
-        run: aws deploy create-application --application-name my-app --compute-platform Server
+        run: aws deploy create-application --application-name my-app-2 --compute-platform Server
 
       - name: Create CodeDeploy deployment group
-        run: aws deploy create-deployment-group --application-name my-app --deployment-group-name my-deployment-group --deployment-config-name CodeDeployDefault.OneAtATime --ec2-tag-filters Key=Name,Value=my-instance,Type=KEY_AND_VALUE
+        run: aws deploy create-deployment-group --application-name my-app-2 --deployment-group-name deploy-gr --deployment-config-name CodeDeployDefault.OneAtATime --ec2-tag-filters Key=Name,Value=my-instance,Type=KEY_AND_VALUE
 
       - name: Create CodeDeploy deployment
-        run: aws deploy create-deployment --application-name my-app --deployment-group-name my-deployment-group --s3-location bucket=my-bucket,bundleType=zip,key=my-app.zip
+        run: aws deploy create-deployment --application-name my-app-2 --deployment-group-name deploy-gr --s3-location bucket=my-bucket,bundleType=zip,key=my-app.zip
