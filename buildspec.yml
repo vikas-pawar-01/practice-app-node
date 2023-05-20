@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 18  
+      nodejs: 12  
     commands:
       - echo Installing Mocha...
       - npm install -g mocha
@@ -29,5 +29,3 @@ artifacts:
     - app.js
     - index.html
     - package.json
-    - node_modules/async/*
-    - node_modules/lodash/*
