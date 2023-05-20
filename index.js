@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/api/todos', async (req, res) => {
-	res.json([{ id: 1, name: 'Todo 1' }]);
+	res.json([{ id: 1, name: 'Todo 1..' }]);
 });
 
 let listener = app.listen(process.env.PORT, (err) => {
